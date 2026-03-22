@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Question Worth Asking</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+background: #000;
+color: #fff;
+font-family: -apple-system, BlinkMacSystemFont, ‘SF Pro Display’, ‘Helvetica Neue’, sans-serif;
+min-height: 100vh;
+-webkit-font-smoothing: antialiased;
+}
+
+.app {
+max-width: 480px;
+margin: 0 auto;
+min-height: 100vh;
+padding: 0 28px;
+}
+
+.screen {
+display: none;
+flex-direction: column;
+min-height: 100vh;
+padding: 72px 0 60px;
+}
+.screen.active {
+display: flex;
+animation: fadeUp 0.4s ease forwards;
+}
+
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(14px); }
+to   { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+font-size: 12px;
+font-weight: 500;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: #666;
+margin-bottom: 20px;
+}
+
+.headline {
+font-size: clamp(38px, 9vw, 54px);
+font-weight: 700;
+line-height: 1.08;
+letter-spacing: -0.03em;
+margin-bottom: 28px;
+}
+.headline .dim { color: #555; }
+
+.body-text {
+font-size: 17px;
+line-height: 1.7;
+color: #888;
+margin-bottom: 52px;
+flex-grow: 0;
+}
+
+.btn-pill {
+display: inline-flex;
+align-items: center;
+gap: 8px;
+background: #fff;
+color: #000;
+font-size: 15px;
+font-weight: 600;
+font-family: inherit;
+padding: 16px 28px;
+border: none;
+border-radius: 100px;
+cursor: pointer;
+transition: transform 0.15s, background 0.15s;
+letter-spacing: -0.01em;
+}
+.btn-pill:hover { background: #ddd; transform: scale(1.02); }
+
+.footnote {
+margin-top: 18px;
+font-size: 13px;
+color: #444;
+}
+
+/* PROGRESS */
+.progress-wrap {
+margin-bottom: 52px;
+}
+.progress-bar {
+width: 100%;
+height: 2px;
+background: #1e1e1e;
+border-radius: 1px;
+}
+.progress-fill {
+height: 100%;
+background: #fff;
+border-radius: 1px;
+transition: width 0.4s ease;
+}
+
+/* QUESTION */
+.q-step {
+font-size: 12px;
+font-weight: 500;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: #555;
+margin-bottom: 18px;
+}
+
+.q-headline {
+font-size: clamp(26px, 6.5vw, 36px);
+font-weight: 700;
+line-height: 1.18;
+letter-spacing: -0.025em;
+margin-bottom: 14px;
+color: #fff;
+}
+
+.q-sub {
+font-size: 15px;
+line-height: 1.65;
+color: #666;
+margin-bottom: 32px;
+}
+
+.quote-block {
+border-left: 2px solid #2a2a2a;
+padding: 14px 20px;
+margin-bottom: 24px;
+color: #888;
+font-size: 16px;
+line-height: 1.7;
+font-style: italic;
+}
+
+.options {
+display: flex;
+flex-direction: column;
+gap: 10px;
+flex: 1;
+padding-bottom: 32px;
+}
+
+.opt {
+background: #111;
+border: 1px solid #1e1e1e;
+color: #aaa;
+font-size: 15px;
+font-family: inherit;
+font-weight: 400;
+padding: 18px 20px;
+text-align: left;
+cursor: pointer;
+border-radius: 14px;
+transition: all 0.18s;
+line-height: 1.45;
+}
+.opt:hover {
+background: #1a1a1a;
+border-color: #333;
+color: #fff;
+}
+.opt.selected {
+background: #1a1a1a;
+border-color: #fff;
+color: #fff;
+}
+
+/* NAV */
+.nav {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding-top: 4px;
+margin-top: auto;
+}
+
+.btn-back {
+background: none;
+border: none;
+color: #444;
+font-size: 15px;
+font-family: inherit;
+cursor: pointer;
+padding: 10px 0;
+transition: color 0.15s;
+letter-spacing: -0.01em;
+}
+.btn-back:hover { color: #fff; }
+
+.btn-next {
+background: #fff;
+color: #000;
+border: none;
+font-size: 15px;
+font-weight: 600;
+font-family: inherit;
+padding: 14px 26px;
+border-radius: 100px;
+cursor: pointer;
+transition: all 0.18s;
+opacity: 0.2;
+pointer-events: none;
+letter-spacing: -0.01em;
+}
+.btn-next.on {
+opacity: 1;
+pointer-events: all;
+}
+.btn-next.on:hover { background: #ddd; transform: scale(1.02); }
+
+/* INVITATION */
+.inv-title {
+font-size: clamp(36px, 8.5vw, 50px);
+font-weight: 700;
+line-height: 1.08;
+letter-spacing: -0.03em;
+margin-bottom: 28px;
+}
+
+.inv-body {
+font-size: 17px;
+line-height: 1.75;
+color: #888;
+margin-bottom: 52px;
+}
+
+.section-label {
+font-size: 12px;
+font-weight: 500;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: #555;
+margin-bottom: 14px;
+}
+
+.prayer-box {
+background: #111;
+border: 1px solid #1e1e1e;
+border-radius: 16px;
+padding: 28px 24px;
+margin-bottom: 12px;
+}
+
+.prayer-text {
+font-size: 17px;
+line-height: 1.8;
+color: #bbb;
+font-style: italic;
+}
+
+.prayer-note {
+font-size: 13px;
+color: #444;
+margin-bottom: 44px;
+}
+
+.card {
+display: flex;
+align-items: flex-start;
+gap: 16px;
+background: #111;
+border: 1px solid #1e1e1e;
+border-radius: 16px;
+padding: 20px;
+margin-bottom: 12px;
+cursor: pointer;
+transition: all 0.18s;
+}
+.card:hover {
+background: #1a1a1a;
+border-color: #333;
+}
+
+.card-title {
+font-size: 15px;
+font-weight: 600;
+color: #fff;
+margin-bottom: 5px;
+letter-spacing: -0.01em;
+}
+
+.card-desc {
+font-size: 14px;
+color: #555;
+line-height: 1.55;
+}
+
+.closing {
+text-align: center;
+font-size: 14px;
+color: #444;
+padding-top: 28px;
+border-top: 1px solid #1a1a1a;
+margin-top: 8px;
+line-height: 1.65;
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+
+  <!-- INTRO -->
+
+  <div class="screen active" id="s-intro">
+    <p class="eyebrow">A few honest questions</p>
+    <h1 class="headline">Have you ever<br>wondered about<br><span class="dim">Jesus?</span></h1>
+    <p class="body-text">Not the religious version.<br>The actual person. What he claimed, and whether any of it could be real.</p>
+    <div>
+      <button class="btn-pill" id="start-btn">I'm open to it</button>
+      <p class="footnote">2 minutes. No signup. No pressure.</p>
+    </div>
+  </div>
+
+  <!-- QUESTIONS -->
+
+  <div class="screen" id="s-questions">
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+    </div>
+    <p class="q-step" id="q-step-txt"></p>
+    <h2 class="q-headline" id="q-text-el"></h2>
+    <p class="q-sub" id="q-sub-el"></p>
+    <div class="quote-block" id="q-quote-el" style="display:none"></div>
+    <div class="options" id="opts-el"></div>
+    <div class="nav">
+      <button class="btn-back" id="btn-back">Back</button>
+      <button class="btn-next" id="btn-next">Continue</button>
+    </div>
+  </div>
+
+  <!-- INVITATION -->
+
+  <div class="screen" id="s-invite">
+    <p class="eyebrow">An open door</p>
+    <h2 class="inv-title">You're welcome<br>to step in.</h2>
+    <p class="inv-body">Jesus didn't come for people who had it together.<br>He came for people who knew they didn't.<br><br>If any of this stirred something in you, even just curiosity, that's worth paying attention to.</p>
+
+```
+<p class="section-label">A simple prayer</p>
+<div class="prayer-box">
+  <p class="prayer-text">Jesus, I don't fully understand who you are, but I'm open to finding out. If you're real, I want to know you. Come into my life. I'm not sure how this works, but I'm willing.</p>
+</div>
+<p class="prayer-note">No magic formula. Just an honest conversation.</p>
+
+<p class="section-label">Where to go next</p>
+<div class="card" id="card-mark">
+  <div>
+    <p class="card-title">Read the Gospel of Mark</p>
+    <p class="card-desc">The shortest account of Jesus' life. Raw, fast-paced, written for people with no background. Read it like a story, not a textbook.</p>
+  </div>
+</div>
+<div class="card" id="card-church">
+  <div>
+    <p class="card-title">Find a community near you</p>
+    <p class="card-desc">Faith isn't meant to be figured out alone. A good church is just a group of honest, broken people trying to follow Jesus together. Find one near you in the UK.</p>
+  </div>
+</div>
+
+<p class="closing">You don't need answers to belong.<br>Bring your questions.</p>
+```
+
+  </div>
+
+</div>
+
+<script>
+var Qs = [
+  {
+    step: "Question 1 of 7",
+    text: "When you hear the name Jesus, what comes to mind?",
+    sub: "No wrong answers here. Just honest ones.",
+    options: ["A religious figure I don't relate to","A historical person, mostly legend","A good teacher or moral example","Honestly, I'm not sure"]
+  },
+  {
+    step: "Question 2 of 7",
+    text: "Was Jesus a real historical figure?",
+    sub: "Most historians, including non-Christian ones, agree he existed. The debate is about who he was.",
+    options: ["I assumed he was mostly legend","Real, but the stories are exaggerated","I've never really thought about it","Yes, definitely real"]
+  },
+  {
+    step: "Question 3 of 7",
+    text: "Jesus made a claim no ordinary teacher makes.",
+    sub: "He didn't just say he had good ideas. He said he was God in human form.",
+    options: ["That seems like a wild claim","Maybe he meant it symbolically","If true, that changes everything","I don't know what to do with that"]
+  },
+  {
+    step: "Question 4 of 7",
+    text: "Here is the difficulty.",
+    sub: "Jesus never gave us the comfortable option of calling him simply a good teacher. A man who claimed what he claimed leaves only three possibilities: he was deliberately deceiving people, he was out of his mind, or he was telling the truth.",
+    options: ["That logic makes sense to me","I hadn't thought about it that way","I'm not convinced, but I'm listening","I need to think about this more"]
+  },
+  {
+    step: "Question 5 of 7",
+    text: "Why Jesus came.",
+    sub: "This world was created for us to care for and enjoy. It was once perfect. Yet when we look around, or even within, we don't see perfection. We see and feel brokenness. Something inside us whispers, it shouldn't be this way. And that longing is right. It was never meant to be like this.\n\nOur turning away from God, choosing our own way over his, has consequences. Not just in our relationships but in everything. The brokenness we see in the world around us, the violence, the injustice, the emptiness, it all traces back to a world cut off from its Creator.\n\nBut there is good news. Jesus came to restore what was broken. Through his life, death and resurrection, he makes the way back to God, healing hearts and offering new life to all who turn to him in repentance and faith.",
+    options: ["That's a good description of the world I see","I've heard something like this before","This is new to me","I'm not sure I believe it"]
+  },
+  {
+    step: "Question 6 of 7",
+    text: "A God who can identify with your pain.",
+    sub: "Jesus is not a distant God who watches from afar. He entered our world. He felt hunger, loss, betrayal and grief. He was rejected and abandoned by the people closest to him. He can identify with your pain because he experienced the brokenness of this world too.",
+    options: ["That makes him feel more real to me","I hadn't thought of him that way","I find that hard to believe","That actually means something to me"]
+  },
+  {
+    step: "Question 7 of 7",
+    text: "If Jesus really is who he said he is, what would that mean for you?",
+    sub: "Take a moment with this one.",
+    options: ["I'd need to take him seriously","It would be the most important thing I'd ever encountered","I'm not ready to go there yet","I honestly don't know"]
+  }
+];
+
+var cur = 0;
+var ans = [];
+
+function showScreen(id) {
+  var all = document.querySelectorAll('.screen');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderQ() {
+  var q = Qs[cur];
+  document.getElementById('q-step-txt').textContent = q.step;
+  document.getElementById('q-text-el').textContent = q.text;
+
+  var subEl = document.getElementById('q-sub-el');
+  if (q.sub && q.sub.indexOf('\n\n') !== -1) {
+    subEl.innerHTML = q.sub.split('\n\n').map(function(p) {
+      return '<p style="margin-bottom:14px">' + p + '</p>';
+    }).join('');
+  } else {
+    subEl.textContent = q.sub || '';
+  }
+
+  var qel = document.getElementById('q-quote-el');
+  if (q.gospel) {
+    qel.style.display = 'block';
+    var paragraphs = q.gospel.split('\n\n');
+    qel.innerHTML = paragraphs.map(function(p) { return '<p style="margin-bottom:16px">' + p + '</p>'; }).join('');
+  } else if (q.type === 'proclamation' && q.sub) {
+    qel.style.display = 'block';
+    var paragraphs = q.sub.split('\n\n');
+    qel.innerHTML = paragraphs.map(function(p) { return '<p style="margin-bottom:16px;color:#aaa;font-size:15px;line-height:1.75">' + p + '</p>'; }).join('');
+    document.getElementById('q-sub-el').textContent = '';
+  } else {
+    qel.style.display = 'none';
+  }
+
+  var optsEl = document.getElementById('opts-el');
+  optsEl.innerHTML = '';
+
+  if (q.type !== 'proclamation') {
+    for (var i = 0; i < q.options.length; i++) {
+      (function(idx) {
+        var b = document.createElement('button');
+        b.className = 'opt' + (ans[cur] === idx ? ' selected' : '');
+        b.textContent = q.options[idx];
+        b.addEventListener('click', function() {
+          ans[cur] = idx;
+          var bs = document.querySelectorAll('.opt');
+          for (var j = 0; j < bs.length; j++) bs[j].classList.remove('selected');
+          b.classList.add('selected');
+          var nx = document.getElementById('btn-next');
+          nx.classList.add('on');
+          nx.textContent = cur === Qs.length - 1 ? "See what's next" : 'Continue';
+        });
+        optsEl.appendChild(b);
+      })(i);
+    }
+  }
+
+  document.getElementById('prog').style.width = (cur / Qs.length * 100) + '%';
+  document.getElementById('btn-back').style.visibility = cur === 0 ? 'hidden' : 'visible';
+
+  var nx = document.getElementById('btn-next');
+  if (q.type === 'proclamation') {
+    nx.classList.add('on');
+  } else if (ans[cur] != null) {
+    nx.classList.add('on');
+  } else {
+    nx.classList.remove('on');
+  }
+  nx.textContent = cur === Qs.length - 1 ? "See what's next" : 'Continue';
+}
+
+document.getElementById('start-btn').addEventListener('click', function() {
+  cur = 0;
+  ans = [];
+  showScreen('s-questions');
+  renderQ();
+});
+
+document.getElementById('btn-back').addEventListener('click', function() {
+  if (cur > 0) { cur--; renderQ(); }
+  else { showScreen('s-intro'); }
+});
+
+document.getElementById('btn-next').addEventListener('click', function() {
+  if (Qs[cur].type !== 'proclamation' && ans[cur] == null) return;
+  if (cur < Qs.length - 1) { cur++; renderQ(); }
+  else { showScreen('s-invite'); }
+});
+
+document.getElementById('card-mark').addEventListener('click', function() {
+  window.open('https://www.biblegateway.com/passage/?search=Mark+1&version=NIV', '_blank');
+});
+
+document.getElementById('card-church').addEventListener('click', function() {
+  window.open('https://www.achurchnearyou.com', '_blank');
+});
+</script>
+
+</body>
+</html>
