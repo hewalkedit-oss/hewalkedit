@@ -357,15 +357,12 @@ line-height: 1.65;
     <div class="card" id="card-church">
       <div>
         <p class="card-title">Find a community near you</p>
-        <p class="card-desc">Faith isn't meant to be figured out alone. A good church is just a group of honest, broken people trying to follow Jesus together. Find one near you.</p>
+        <p class="card-desc">Faith isn't meant to be figured out alone. A good church is just a group of honest, broken people trying to follow Jesus together. Find one near you in the UK.</p>
       </div>
     </div>
 
     <p class="closing">You don't need answers to belong.<br>Bring your questions.</p>
   </div>
-
-</div>
-
 <script>
 var Qs = [
   {
@@ -395,8 +392,132 @@ var Qs = [
   {
     step: "Question 5 of 7",
     text: "Why Jesus came.",
-    sub: `This world was created for us to care for and enjoy. It was once perfect. Yet when we look around, or even within, we don't see perfection. We see and feel brokenness. Something inside us whispers, it shouldn't be this way. And that longing is right. It was never meant to be like this.
+    sub: "This world was created for us to care for and enjoy. It was once perfect. Yet when we look around, or even within, we don't see perfection. We see and feel brokenness. Something inside us whispers, it shouldn't be this way. And that longing is right. It was never meant to be like this. Our turning away from God, choosing our own way over his, has consequences. Not just in our relationships but in everything. The brokenness we see in the world around us, the violence, the injustice, the emptiness, it all traces back to a world cut off from its Creator. But there is good news. Jesus came to restore what was broken. Through his life, death and resurrection, he makes the way back to God, healing hearts and offering new life to all who turn to him in repentance and faith.",
+    options: ["That's a good description of the world I see","I've heard something like this before","This is new to me","I'm not sure I believe it"]
+  },
+  {
+    step: "Question 6 of 7",
+    text: "A God who can identify with your pain.",
+    sub: "Jesus is not a distant God who watches from afar. He entered our world. He felt hunger, loss, betrayal and grief. He was rejected and abandoned by the people closest to him. He can identify with your pain because he experienced the brokenness of this world too.",
+    options: ["That makes him feel more real to me","I hadn't thought of him that way","I find that hard to believe","That actually means something to me"]
+  },
+  {
+    step: "Question 7 of 7",
+    text: "If Jesus really is who he said he is, what would that mean for you?",
+    sub: "Take a moment with this one.",
+    options: ["I'd need to take him seriously","It would be the most important thing I'd ever encountered","I'm not ready to go there yet","I honestly don't know"]
+  }
+];
 
-Our turning away from God, choosing our own way over his, has consequences. Not just in our relationships but in everything. The brokenness we see in the world around us, the violence, the injustice, the emptiness, it all traces back to a world cut off from its Creator.
+var cur = 0;
+var ans = [];
 
-But there is good news. Jesus came to restore what was broken. Through his life, death and resurrection, he makes the way back to God, healing hearts and offering new life to all who turn to him in repentance and faith.`,
+function showScreen(id) {
+  var all = document.querySelectorAll('.screen');
+  for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function renderQ() {
+  var q = Qs[cur];
+  document.getElementById('q-step-txt').textContent = q.step;
+  document.getElementById('q-text-el').textContent = q.text;
+
+  var subEl = document.getElementById('q-sub-el');
+  if (q.sub && q.sub.indexOf('\n\n') !== -1) {
+    subEl.innerHTML = q.sub.split('\n\n').map(function(p) {
+      return '<p style="margin-bottom:14px">' + p + '</p>';
+    }).join('');
+  } else {
+    subEl.textContent = q.sub || '';
+  }
+
+  var qel = document.getElementById('q-quote-el');
+  if (q.gospel) {
+    qel.style.display = 'block';
+    var paragraphs = q.gospel.split('\n\n');
+    qel.innerHTML = paragraphs.map(function(p) { return '<p style="margin-bottom:16px">' + p + '</p>'; }).join('');
+  } else if (q.type === 'proclamation' && q.sub) {
+    qel.style.display = 'block';
+    var paragraphs = q.sub.split('\n\n');
+    qel.innerHTML = paragraphs.map(function(p) { return '<p style="margin-bottom:16px;color:#aaa;font-size:15px;line-height:1.75">' + p + '</p>'; }).join('');
+    document.getElementById('q-sub-el').textContent = '';
+  } else {
+    qel.style.display = 'none';
+  }
+
+  var optsEl = document.getElementById('opts-el');
+  optsEl.innerHTML = '';
+
+  if (q.type !== 'proclamation') {
+    for (var i = 0; i < q.options.length; i++) {
+      (function(idx) {
+        var b = document.createElement('button');
+        b.className = 'opt' + (ans[cur] === idx ? ' selected' : '');
+        b.textContent = q.options[idx];
+        b.addEventListener('click', function() {
+          ans[cur] = idx;
+          var bs = document.querySelectorAll('.opt');
+          for (var j = 0; j < bs.length; j++) bs[j].classList.remove('selected');
+          b.classList.add('selected');
+          var nx = document.getElementById('btn-next');
+          nx.classList.add('on');
+          nx.textContent = cur === Qs.length - 1 ? 'See what is next' : 'Continue';
+        });
+        optsEl.appendChild(b);
+      })(i);
+    }
+  }
+
+  document.getElementById('prog').style.width = (cur / Qs.length * 100) + '%';
+  
+  var nextBtn = document.getElementById('btn-next');
+  if (ans[cur] !== undefined) {
+    nextBtn.classList.add('on');
+    nextBtn.textContent = cur === Qs.length - 1 ? 'See what is next' : 'Continue';
+  } else {
+    nextBtn.classList.remove('on');
+    nextBtn.textContent = 'Continue';
+  }
+}
+
+document.getElementById('start-btn').addEventListener('click', function() {
+  cur = 0;
+  ans = [];
+  showScreen('s-questions');
+  renderQ();
+});
+
+document.getElementById('btn-back').addEventListener('click', function() {
+  if (cur > 0) {
+    cur--;
+    renderQ();
+  } else {
+    showScreen('s-intro');
+  }
+});
+
+document.getElementById('btn-next').addEventListener('click', function() {
+  if (Qs[cur].type !== 'proclamation' && ans[cur] == null) return;
+  if (cur < Qs.length - 1) {
+    cur++;
+    renderQ();
+  } else {
+    showScreen('s-invite');
+  }
+});
+
+document.getElementById('card-mark').addEventListener('click', function() {
+  window.open('https://biblegateway.com', '_blank');
+});
+
+document.getElementById('card-church').addEventListener('click', function() {
+  window.open('https://achurchnearyou.com', '_blank');
+});
+document.getElementById('card-church').addEventListener('click', function() {
+  window.open('https://www.achurchnearyou.com', '_blank');
+});
+</script>
+</body>
+</html>
